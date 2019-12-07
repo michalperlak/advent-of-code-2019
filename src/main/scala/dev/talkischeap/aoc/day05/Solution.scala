@@ -3,10 +3,6 @@ package dev.talkischeap.aoc.day05
 import scala.io.{Source, StdIn}
 
 object Solution {
-  def main(args: Array[String]): Unit = {
-    Solution.solution()
-  }
-
   def solution(): Unit = {
     val input = readInput()
     executeProgram(input)
@@ -55,16 +51,14 @@ object Solution {
   }
 
   private def executeGetInput(input: Array[Int], parameterIndex: Int, opcode: Array[Char]): Int = {
-    val parameterModes = getParameterModes(opcode, 1)
     val inputValue = StdIn.readInt
-    val parameter = getParameter(parameterIndex, input, parameterModes(0))
+    val parameter = getParameter(parameterIndex, input, 1)
     input(parameter) = inputValue
     parameterIndex + 1
   }
 
   private def executeOutput(input: Array[Int], parameterIndex: Int, opcode: Array[Char]): Int = {
-    val parameterModes = getParameterModes(opcode, 1)
-    val parameter = getParameter(parameterIndex, input, parameterModes(0))
+    val parameter = getParameter(parameterIndex, input, 1)
     println(parameter)
     parameterIndex + 1
   }
@@ -111,7 +105,7 @@ object Solution {
   }
 
   private def readInput(): Array[Int] = Source
-    .fromResource("day05/test.txt")
+    .fromResource("day05/input.txt")
     .getLines
     .flatMap(parseLine)
     .toArray
