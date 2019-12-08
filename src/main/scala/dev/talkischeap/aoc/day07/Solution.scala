@@ -1,6 +1,5 @@
 package dev.talkischeap.aoc.day07
 
-import scala.collection.immutable.ArraySeq
 import scala.io.Source
 
 object Solution {
@@ -11,10 +10,6 @@ object Solution {
 
   case class ExecState(program: IndexedSeq[Int], pointer: Int = 0, input: List[Int], output: List[Int] = Nil)
 
-  def main(args: Array[String]): Unit = {
-    println(Solution.partOneSolution())
-  }
-
   def partOneSolution(): Int = {
     val program = readInput()
     def chained(phases: Seq[Int]): Int =
@@ -23,6 +18,44 @@ object Solution {
     (0 to 4)
       .permutations
       .map(chained)
+      .max
+  }
+
+  def partTwoSolution(): Int = {
+    val program = readInput()
+    @scala.annotation.tailrec
+    def feedback(states: IndexedSeq[(ExecMode, ExecState)], index: Int = 0): Int = {
+      val (mode, state) = states(index)
+      val previousIndex = (index + states.size - 1) % states.size
+      val nextIndex = (index + 1) % states.size
+      mode match {
+        case Terminated if index == states.size - 1 =>
+          state.output.head
+        case Terminated => feedback(states, nextIndex)
+        case _ =>
+          val previous = states(previousIndex)
+          val next = execute(
+            state = state.copy(input = state.input ++ previous._2.output)
+          )
+          val nextStates = states
+            .updated(previousIndex,
+              previous.copy(
+                _2 = previous._2.copy(output = Nil)
+              )
+            ).updated(index, next)
+          feedback(nextStates, nextIndex)
+      }
+    }
+
+    def looped(phases: IndexedSeq[Int]): Int =
+      feedback(
+        (List(phases.head, 0) +: phases.tail.map(v => List(v)))
+          .map(in => (Running, ExecState(program, input = in)))
+      )
+
+    (5 to 9)
+      .permutations
+      .map(looped)
       .max
   }
 
